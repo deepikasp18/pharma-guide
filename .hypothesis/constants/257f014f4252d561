@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/config.py
+# hypothesis_version: 6.151.9
+
+['.env', '8182', '9200', 'AWS_ACCESS_KEY_ID', 'AWS_REGION', 'ENCRYPTION_KEY', 'ENVIRONMENT', 'HS256', 'NEPTUNE_ENDPOINT', 'NEPTUNE_PORT', 'OPENSEARCH_HOST', 'OPENSEARCH_PORT', 'SECRET_KEY', 'development', 'localhost', 'us-east-1']

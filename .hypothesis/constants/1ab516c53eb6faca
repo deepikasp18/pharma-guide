@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/knowledge_graph/interaction_detector.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.5, 0.7, 0.8, 1.0, 1.05, 1.1, ',', 'CONTRAINDICATED_FOR', 'Condition', 'DDInter', 'DrugBank', 'INTERACTS_WITH', 'age', 'clinical_effect', 'confidence', 'contraindicated', 'contraindications', 'created_from', 'critical', 'drug_id', 'evidence_level', 'evidence_sources', 'heart failure', 'highest_risk', 'id', 'kidney failure', 'label', 'liver failure', 'major', 'management', 'mechanism', 'minor', 'moderate', 'name', 'pregnancy', 'severe allergy', 'severity', 'severity_breakdown', 'total_interactions']

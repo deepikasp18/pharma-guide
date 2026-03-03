@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/knowledge_graph/validators.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 150, 200, 1000, 'Drug name too long', '^DB\\d{5}$', 'age', 'demographics', 'drugbank_id', 'female', 'gender', 'male', 'meddra_code', 'name', 'other', 'rxcui', 'unknown', 'weight']

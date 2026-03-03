@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/knowledge_graph/graph_builder.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.5, 1.0, '.', '1.0', '1.1', 'CAUSES', 'INTERACTS_WITH', 'atc_codes', 'cached_entities', 'cached_relationships', 'causes_relationship', 'clinical_effect', 'confidence', 'contraindications', 'created_from', 'data', 'description', 'documentation', 'dosage_forms', 'drug', 'drug_a_id', 'drug_b_id', 'drug_name', 'drugbank', 'drugbank_id', 'entity', 'entity_types', 'evidence_level', 'evidence_sources', 'frequency', 'frequency_category', 'full_rebuild', 'generic_name', 'high', 'id', 'incremental', 'indications', 'interaction', 'management', 'mechanism', 'meddra_code', 'medium', 'merge_only', 'moderate', 'name', 'onset', 'pharmacokinetics', 'record_count', 'rxcui', 'severity', 'side_effect', 'side_effect_name', 'source_dataset', 'system_organ_class', 'type', 'unknown', 'version']

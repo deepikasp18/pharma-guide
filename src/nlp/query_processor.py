@@ -52,6 +52,13 @@ class QueryAnalysis:
     query_confidence: float
     normalized_query: str
     context_hints: Dict[str, Any]
+    needs_clarification: bool = False
+    clarification_request: Optional[str] = None
+    ambiguous_terms: List[str] = None
+    
+    def __post_init__(self):
+        if self.ambiguous_terms is None:
+            self.ambiguous_terms = []
 
 class MedicalEntityExtractor:
     """Extracts medical entities from text"""
@@ -74,8 +81,7 @@ class MedicalEntityExtractor:
         # Drug name patterns
         self.drug_patterns = [
             r'\b[A-Z][a-z]+(?:pril|olol|mycin|cillin|statin|zole|pine|ide|ine|ate|al)\b',  # Common drug suffixes
-            r'\b(?:aspirin|ibuprofen|acetaminophen|tylenol|advil|motrin|aleve)\b',  # Common OTC drugs
-            r'\b[A-Z][a-z]{3,}(?:\s+(?:HCL|XR|ER|SR|CR|IR|OD))?(?:\s+\d+\s*mg)?\b'  # Generic drug patterns
+            r'\b(?:aspirin|ibuprofen|acetaminophen|tylenol|advil|motrin|aleve|lisinopril|metformin|atorvastatin|lipitor|warfarin|plavix)\b',  # Common drugs
         ]
         
         # Condition patterns
@@ -436,6 +442,11 @@ class MedicalQueryProcessor:
             # Extract context hints
             context_hints = self._extract_context_hints(query, entities)
             
+            # Check if clarification is needed
+            needs_clarification, clarification_request, ambiguous_terms = self._check_clarification_needed(
+                query, entities, intent_confidence, entity_confidence
+            )
+            
             return QueryAnalysis(
                 original_query=query,
                 intent=intent,
@@ -443,7 +454,10 @@ class MedicalQueryProcessor:
                 entities=entities,
                 query_confidence=query_confidence,
                 normalized_query=normalized_query,
-                context_hints=context_hints
+                context_hints=context_hints,
+                needs_clarification=needs_clarification,
+                clarification_request=clarification_request,
+                ambiguous_terms=ambiguous_terms
             )
         
         except Exception as e:
@@ -455,8 +469,124 @@ class MedicalQueryProcessor:
                 entities=[],
                 query_confidence=0.0,
                 normalized_query=query,
-                context_hints={}
+                context_hints={},
+                needs_clarification=True,
+                clarification_request="I'm having trouble understanding your query. Could you please rephrase it?",
+                ambiguous_terms=[]
             )
+    
+    def _check_clarification_needed(
+        self, 
+        query: str, 
+        entities: List[ExtractedEntity],
+        intent_confidence: float,
+        entity_confidence: float
+    ) -> Tuple[bool, Optional[str], List[str]]:
+        """
+        Check if the query needs clarification based on ambiguity detection
+        
+        Returns:
+            Tuple of (needs_clarification, clarification_request, ambiguous_terms)
+        """
+        ambiguous_terms = []
+        clarification_parts = []
+        
+        # Filter out common words that were incorrectly identified as drugs
+        common_words = {'what', 'side', 'effects', 'safe', 'can', 'take', 'use', 'tell', 'about', 'is', 'are', 'the', 'of', 'for', 'with', 'and', 'or', 'medicine', 'medication', 'drug', 'pill', 'tablet'}
+        drug_entities = [e for e in entities if e.entity_type == EntityType.DRUG and e.text.lower() not in common_words]
+        
+        # Check 1: Low intent confidence indicates unclear query purpose
+        # But only if there are no clear drug entities - if we have drugs, the query might still be clear
+        if intent_confidence < 0.3 and len(drug_entities) == 0:
+            clarification_parts.append("I'm not sure what type of information you're looking for")
+            ambiguous_terms.append("query_intent")
+        
+        # Check 2: No drug entities extracted from a query that seems to be about medications
+        medication_keywords = ['medication', 'medicine', 'drug', 'pill', 'tablet', 'side effect', 'interaction', 'dose', 'dosage']
+        has_medication_keyword = any(keyword in query.lower() for keyword in medication_keywords)
+        
+        # Also check for vague help-seeking queries
+        vague_help_patterns = ['help me understand', 'can you help', 'tell me more', 'explain', 'what should i know']
+        is_vague_help = any(pattern in query.lower() for pattern in vague_help_patterns)
+        
+        if (has_medication_keyword or is_vague_help) and len(drug_entities) == 0:
+            if "missing_drug_name" not in ambiguous_terms:  # Avoid duplication
+                clarification_parts.append("Which specific medication are you asking about?")
+                ambiguous_terms.append("missing_drug_name")
+        
+        # Check 3: Low confidence entities (ambiguous entity recognition)
+        low_confidence_entities = [e for e in entities if e.confidence < 0.5]
+        if low_confidence_entities:
+            entity_texts = [e.text for e in low_confidence_entities]
+            clarification_parts.append(f"I'm uncertain about: {', '.join(entity_texts)}")
+            ambiguous_terms.extend(entity_texts)
+        
+        # Check 4: Vague pronouns or references
+        vague_patterns = [
+            r'\b(?:it|this|that|these|those|them)\b',
+            r'\b(?:something|anything|everything)\b'
+        ]
+        for pattern in vague_patterns:
+            matches = re.findall(pattern, query, re.IGNORECASE)
+            if matches:
+                clarification_parts.append(f"Could you be more specific about what '{matches[0]}' refers to?")
+                ambiguous_terms.extend(matches)
+                break
+        
+        # Check 5: Very short queries (likely incomplete) - but only if no clear entities
+        words = query.split()
+        if len(words) <= 2 and len(drug_entities) == 0:
+            # Single word queries or very short queries without context
+            if len(words) == 1 or (len(words) == 2 and words[1] in ['?', '.']):
+                clarification_parts.append("Could you provide more details about what you'd like to know?")
+                ambiguous_terms.append("incomplete_query")
+        
+        # Check 6: Generic drug references without specific names
+        generic_drug_patterns = [
+            r'\bmy\s+(?:medication|medicine|drug|pill)\b'
+        ]
+        has_generic_ref = any(re.search(p, query, re.IGNORECASE) for p in generic_drug_patterns)
+        
+        if has_generic_ref and len(drug_entities) == 0:
+            if "missing_drug_name" not in ambiguous_terms:  # Avoid duplication
+                clarification_parts.append("Which specific medication are you asking about?")
+                ambiguous_terms.append("generic_drug_reference")
+        
+        # Check 7: Queries with multiple drugs but unclear intent about interactions
+        if len(drug_entities) >= 2:
+            # Check if it's clearly an interaction query
+            interaction_keywords = ['interact', 'interaction', 'together', 'combine', 'mix', 'taking', 'take both']
+            has_interaction_keyword = any(keyword in query.lower() for keyword in interaction_keywords)
+            
+            # Check if it's a vague query with multiple drugs
+            vague_query_patterns = ['tell me about', 'what about', 'info on', 'information on']
+            is_vague_query = any(pattern in query.lower() for pattern in vague_query_patterns)
+            
+            # Check if it's a simple list without context
+            is_simple_list = len(query.split()) <= len(drug_entities) + 2  # e.g., "Drug1 and Drug2"
+            
+            if not has_interaction_keyword and (is_simple_list or is_vague_query):
+                drug_names = [e.text for e in drug_entities]
+                clarification_parts.append(
+                    f"You mentioned {', '.join(drug_names)}. Are you asking about interactions or something else?"
+                )
+                ambiguous_terms.append("multiple_drugs_unclear")
+        
+        # Determine if clarification is needed
+        needs_clarification = len(clarification_parts) > 0
+        
+        # Build clarification request
+        clarification_request = None
+        if needs_clarification:
+            if len(clarification_parts) == 1:
+                clarification_request = clarification_parts[0] + ". Could you please clarify?"
+            else:
+                clarification_request = (
+                    "I need some clarification:\n" + 
+                    "\n".join(f"- {part}" for part in clarification_parts)
+                )
+        
+        return needs_clarification, clarification_request, ambiguous_terms
     
     def _normalize_query(self, query: str) -> str:
         """Normalize query text"""

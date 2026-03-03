@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/knowledge_graph/reasoning_engine.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.25, 0.5, 0.6, 0.7, 0.75, 0.8, 1.0, 1.05, 1.1, 1.15, 1.2, 'Advanced age (>65)', 'Drug', 'HAS_EVENT', 'INTERACTS_WITH', 'Pediatric patient', 'SideEffect', 'TemporalEvent', 'after', 'age', 'anomaly', 'before', 'bidirectional', 'breadth_first', 'concurrent', 'conditions', 'confidence', 'contraindicated', 'created_at', 'critical', 'cycle', 'demographics', 'depth_first', 'diabetes', 'during', 'event_type', 'frequency', 'heart_disease', 'high', 'id', 'inV', 'inf', 'inferred_from', 'kidney_disease', 'label', 'liver_disease', 'low', 'major', 'max', 'medications', 'method', 'min', 'minor', 'moderate', 'overlaps', 'polypharmacy', 'properties', 'relationship_type', 'risk_factors', 'severity', 'shortest_path', 'similarity', 'similarity_based', 'source_id', 'target_id', 'timestamp', 'to', 'trend', 'unknown', 'updated_at', 'value', 'weight']

@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/main.py
+# hypothesis_version: 6.151.9
+
+[8000, '*', '/', '/health', '0.0.0.0', '1.0.0', '__main__', 'development', 'environment', 'healthy', 'message', 'src.main:app', 'status', 'version']

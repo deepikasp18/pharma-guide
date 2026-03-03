@@ -1,0 +1,4 @@
+# file: /home/invisibl-15/Documents/H2S/Project/pharma-guide/src/knowledge_graph/patient_context_manager.py
+# hypothesis_version: 6.151.9
+
+[0.03, 0.05, 1.0, 1.1, 1.15, 1.2, 100, 'Patient', '[]', 'age', 'age_risk', 'allergies', 'allergy_risk', 'condition_risk', 'conditions', 'context_applied', 'current_medications', 'demographics', 'filters', 'gender', 'genetic_factors', 'id', 'medications', 'name', 'patient_id', 'polypharmacy_risk', 'preferences', 'risk_factors', 'weights', '{}']
