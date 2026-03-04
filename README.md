@@ -39,7 +39,7 @@ PharmaGuide integrates multiple authoritative medical datasets (OnSIDES, SIDER, 
 2. Copy `.env.example` to `.env` and configure your settings
 3. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 4. Start the development environment:
    ```bash
@@ -47,14 +47,14 @@ PharmaGuide integrates multiple authoritative medical datasets (OnSIDES, SIDER, 
    ```
 5. Run the application:
    ```bash
-   python -m src.main
+   uv run python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 ### Testing
 
 Run the test suite:
 ```bash
-pytest
+uv run pytest tests/ -v
 ```
 
 ## API Documentation
