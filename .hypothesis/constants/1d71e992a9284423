@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/patient_context.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9, 1.0, ', ', '.iterate()', '.next()', '.toList()', '.toSet()', 'age', 'age_relevance', 'age_risk', 'allergies', 'allergy', 'comorbidity_risk', 'condition', 'conditions', 'confidence', 'demographics', 'diabetes', 'dosing', 'drug_name', 'effectiveness', 'eq', 'genetic', 'genetic_factors', 'genetic_risk', 'gte', 'heart_disease', 'hypertension', 'in', 'interacting_drugs', 'interactions', 'kidney_disease', 'liver_disease', 'lte', 'medication', 'medications', 'modify', 'name', 'none', 'not_in', 'overall_risk', 'polypharmacy_risk', 'risk', 'risk_factors', 'side_effects']

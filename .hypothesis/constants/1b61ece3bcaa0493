@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/physiological_analysis.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0, 1.1, 100, '*1/*2', '*1/*4', '*2/*2', '*4/*4', '*5/*5', 'CYP2C19', 'CYP2C9', 'CYP2D6', 'CYP3A4', 'Generally minimal', 'Hepatic impairment', 'High body weight', 'Low body weight', 'Reduced', 'Renal impairment', 'Variable', 'absorption', 'age', 'amlodipine', 'atorvastatin', 'clopidogrel', 'codeine', 'distribution', 'dose', 'dosing', 'drug_', 'escitalopram', 'excretion', 'fluoxetine', 'increased risk', 'intermediate', 'kidney_disease', 'liver_disease', 'losartan', 'metabolism', 'metoprolol', 'midazolam', 'monitor', 'normal', 'omeprazole', 'phenytoin', 'poor', 'rapid', 'reduced', 'significant risk', 'simvastatin', 'toxicity', 'tramadol', 'ultra', 'ultra_rapid', 'warfarin', 'weight']

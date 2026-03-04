@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/serializers.py
+# hypothesis_version: 6.151.9
+
+['causes_relationship', 'dataset_metadata', 'drug', 'entity_mapping', 'evidence_provenance', 'graph_response', 'id', 'interaction', 'model_dump', 'patient', 'properties', 'semantic_query', 'side_effect', 'source', 'target', 'type']

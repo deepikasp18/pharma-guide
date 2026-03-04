@@ -6,6 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from src.config import settings
+from src.api import query, patient, reasoning, alerts
+from src.api.middleware import (
+    ErrorHandlingMiddleware,
+    RequestLoggingMiddleware,
+    RateLimitMiddleware
+)
 
 app = FastAPI(
     title="PharmaGuide Health Companion",
@@ -21,6 +27,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add custom middleware
+app.add_middleware(ErrorHandlingMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
+
+# Include routers
+app.include_router(query.router)
+app.include_router(patient.router)
+app.include_router(reasoning.router)
+app.include_router(alerts.router)
 
 @app.get("/")
 async def root():

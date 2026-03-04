@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/database.py
+# hypothesis_version: 6.151.9
+
+[',', 'CAUSES', 'Drug', 'Patient', 'SideEffect', '_current_edge', '_current_vertex', 'close', 'confidence', 'edges', 'evidence_sources', 'frequency', 'from', 'g', 'id', 'label', 'name', 'properties', 'to', 'vertices']

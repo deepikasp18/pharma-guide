@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/reasoning_engine.py
+# hypothesis_version: 6.151.9
+
+[-0.05, 0.0, 0.05, 0.25, 0.5, 0.6, 0.7, 0.75, 0.8, 1.0, 1.15, 1.2, 1.25, 1.3, 86400, 'Advanced age', 'SideEffect', 'Unknown', 'age', 'all_paths', 'bayesian', 'breadth_first', 'comorbidity', 'confidence', 'contraindicated', 'correlated', 'critical', 'decreasing', 'demographic', 'depth_first', 'dosage_change', 'dosage_correlation', 'drug_id', 'effectiveness', 'effectiveness_trend', 'evidence_based', 'evidence_sources', 'frequentist', 'heart_disease', 'high', 'id', 'increasing', 'kidney_disease', 'label', 'liver_disease', 'low', 'major', 'minor', 'moderate', 'name', 'patient_profile', 'recurring', 'severity', 'shortest_path', 'side_effect', 'sources', 'stable', 'target', 'timestamp', 'type', 'unknown']

@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/recommendation_engine.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.3, 0.6, 0.7, 0.8, 'absorption', 'atc_codes', 'bioavailability', 'clinical_effect', 'contraindicated', 'dosage_adjustment', 'enhanced_monitoring', 'generic_name', 'high', 'indications', 'interacting_drug_id', 'interaction_severity', 'major', 'mechanism', 'minor', 'moderate', 'name', 'severity', 'timing_adjustment']

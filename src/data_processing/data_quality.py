@@ -75,7 +75,10 @@ class DataQualityValidator:
             
             # Check for null/empty values
             null_count = data[field].isnull().sum()
-            empty_count = (data[field] == '').sum() if data[field].dtype == 'object' else 0
+            # Check for empty strings - handle both 'object' and 'string' dtypes
+            empty_count = 0
+            if pd.api.types.is_string_dtype(data[field]):
+                empty_count = (data[field].astype(str).str.strip() == '').sum()
             failed_records = null_count + empty_count
             
             score = 1.0 - (failed_records / len(data))

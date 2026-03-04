@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/api/reasoning.py
+# hypothesis_version: 6.151.9
+
+[0.7, 0.8, 0.85, 0.9, 404, 500, '/alternatives', '/interactions', '/personalize', '/reasoning', 'CAUSES', 'Drug', 'DrugBank', 'INTERACTS_WITH', 'OnSIDES', 'Patient context', 'SIDER', 'SideEffect', 'alt_drug_1', 'clinical_effect', 'confidence', 'contraindicated', 'description', 'dosage_adjustment', 'drug_a', 'drug_b', 'drug_id', 'drug_name', 'low', 'major', 'mechanism', 'minor', 'moderate', 'overall_risk', 'path_1', 'path_2', 'reason', 'reasoning', 'severity', 'specific_risks', 'strategy_type']

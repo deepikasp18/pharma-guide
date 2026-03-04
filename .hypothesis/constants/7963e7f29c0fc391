@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/api/alerts.py
+# hypothesis_version: 6.151.9
+
+[500, '/acknowledge', '/active/{patient_id}', '/alerts', '/configure', 'Monitor for symptoms', 'acknowledged_at', 'adherence', 'alert_id', 'alert_types', 'alerts', 'contraindication', 'critical', 'dosing', 'info', 'interaction', 'monitoring', 'patient_id', 'severity_threshold', 'status', 'success', 'warning']

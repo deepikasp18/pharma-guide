@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/data_processing/metadata_manager.py
+# hypothesis_version: 6.151.9
+
+[0.0, '%Y%m%d_%H%M%S', '*_metadata.json', '_metadata', 'authority_level', 'authority_levels', 'data/metadata', 'dataset_name', 'datasets', 'description', 'entity_types', 'entity_types_added', 'entity_types_removed', 'error', 'high', 'last_updated', 'license', 'low', 'medium', 'name', 'original_version', 'quality_score', 'quality_score_change', 'r', 'record_count', 'record_count_change', 'relationship_types', 'snapshot_timestamp', 'total_datasets', 'total_records', 'version', 'version1', 'version2', 'w']
