@@ -2,6 +2,10 @@
 
 An AI-powered health companion platform built on a comprehensive medical knowledge graph architecture.
 
+> **🎉 No AWS Account Required for Development!**  
+> Run PharmaGuide locally with mock services - perfect for learning, testing, and development.  
+> See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for quick setup.
+
 ## Overview
 
 PharmaGuide integrates multiple authoritative medical datasets (OnSIDES, SIDER, FAERS, DrugBank, DDInter, Drugs@FDA) to create a unified knowledge representation that enables sophisticated reasoning about medications, drug interactions, side effects, and personalized treatment recommendations.
@@ -31,10 +35,34 @@ PharmaGuide integrates multiple authoritative medical datasets (OnSIDES, SIDER, 
 
 - Python 3.11+
 - uv (Python package manager) - [Install uv](https://github.com/astral-sh/uv)
-- Docker and Docker Compose (optional, for local services)
-- AWS Account (for production Neptune deployment)
+- **No AWS account required for local development!** ✅
 
-### Installation
+### Local Development (No AWS Required)
+
+Perfect for development and testing without AWS services:
+
+```bash
+# 1. Automated setup (recommended)
+./scripts/setup_local_dev.sh
+
+# 2. Run the application
+./scripts/run_local.sh
+
+# 3. Access the API
+# http://localhost:8000/docs
+```
+
+That's it! The application runs with mock services - no AWS credentials needed.
+
+See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for details.
+
+### Production Setup (With AWS)
+
+For production deployment with real AWS services:
+
+### Production Setup (With AWS)
+
+For production deployment with real AWS services:
 
 1. **Clone the repository**
    ```bash
@@ -44,24 +72,19 @@ PharmaGuide integrates multiple authoritative medical datasets (OnSIDES, SIDER, 
 
 2. **Set up environment variables**
    
-   **Option A: Automated setup (recommended)**
+   **Option A: Automated setup**
    ```bash
    ./scripts/setup_env.sh
    ```
    
    **Option B: Manual setup**
    ```bash
-   # Copy the example file
    cp .env.example .env
-   
-   # Generate security keys
    python scripts/generate_keys.py
-   
-   # Edit .env and add your configuration
-   nano .env
+   # Edit .env and add your AWS credentials
    ```
    
-   See [Environment Setup Guide](docs/ENVIRONMENT_SETUP.md) for detailed configuration instructions.
+   See [Environment Setup Guide](docs/ENVIRONMENT_SETUP.md) for detailed configuration.
 
 3. **Install dependencies**
    ```bash
@@ -173,6 +196,10 @@ pharma-guide/
 ## Documentation
 
 - [Environment Setup Guide](docs/ENVIRONMENT_SETUP.md) - Detailed configuration instructions
+- [Environment Variables Reference](docs/ENVIRONMENT_VARIABLES.md) - Complete variable documentation
+- [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) - Running without AWS
+- [Mock Data System Guide](docs/MOCK_DATA_GUIDE.md) - How mock data works in development
+- [FAQ](docs/FAQ.md) - Frequently asked questions
 - [Graph Reasoning Engine](docs/graph_reasoning_engine.md) - Knowledge graph architecture
 - [Query Translation Service](docs/query_translation_service.md) - NLP to graph queries
 
