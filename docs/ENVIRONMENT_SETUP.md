@@ -107,8 +107,8 @@ python -m spacy download en_core_web_sm
 
 For medical NER (optional):
 ```bash
-pip install scispacy
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
+uv pip install scispacy
+uv pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
 ```
 
 Then set:

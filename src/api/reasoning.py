@@ -5,12 +5,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
-# Note: These imports are for type hints and future implementation
-# from src.knowledge_graph.reasoning_engine import GraphReasoningEngine
-# from src.knowledge_graph.recommendation_engine import (
-#     AlternativeMedicationEngine,
-#     InteractionManagementService
-# )
+from src.config import settings
+from src.knowledge_graph.database import db
+from src.knowledge_graph.reasoning_engine import GraphReasoningEngine
+from src.knowledge_graph.models import PatientContext
 
 router = APIRouter(prefix="/reasoning", tags=["reasoning"])
 
@@ -80,30 +78,92 @@ async def analyze_interactions(request: InteractionAnalysisRequest):
     interaction patterns between multiple medications.
     """
     try:
-        # TODO: Initialize GraphReasoningEngine
-        # For now, return mock response
-        
-        return InteractionAnalysisResponse(
-            interactions=[
-                {
-                    "drug_a": request.drug_ids[0] if len(request.drug_ids) > 0 else "",
-                    "drug_b": request.drug_ids[1] if len(request.drug_ids) > 1 else "",
-                    "severity": "moderate",
-                    "mechanism": "CYP450 enzyme interaction",
-                    "clinical_effect": "Increased drug levels"
-                }
-            ],
-            severity_summary={
-                "minor": 0,
-                "moderate": 1,
-                "major": 0,
-                "contraindicated": 0
-            },
-            recommendations=[
-                "Monitor for signs of increased drug effect",
-                "Consider dosage adjustment"
-            ]
-        )
+        if settings.USE_REAL_LOGIC and len(request.drug_ids) >= 2:
+            # Use real reasoning engine
+            reasoning_engine = GraphReasoningEngine(db)
+            
+            interactions = []
+            severity_counts = {"minor": 0, "moderate": 0, "major": 0, "contraindicated": 0}
+            
+            # Check interactions between all drug pairs
+            for i in range(len(request.drug_ids)):
+                for j in range(i + 1, len(request.drug_ids)):
+                    drug_a = request.drug_ids[i]
+                    drug_b = request.drug_ids[j]
+                    
+                    # Find interaction paths between drugs
+                    paths = await reasoning_engine.multi_hop_traversal(
+                        start_node_id=drug_a,
+                        target_node_type="Drug",
+                        max_hops=2
+                    )
+                    
+                    # Filter paths that end at drug_b
+                    interaction_paths = [p for p in paths if drug_b in p.nodes]
+                    
+                    if interaction_paths:
+                        # Get the highest confidence interaction
+                        best_path = max(interaction_paths, key=lambda p: p.confidence)
+                        
+                        # Determine severity (simplified)
+                        if best_path.confidence > 0.8:
+                            severity = "major"
+                        elif best_path.confidence > 0.6:
+                            severity = "moderate"
+                        else:
+                            severity = "minor"
+                        
+                        severity_counts[severity] += 1
+                        
+                        interactions.append({
+                            "drug_a": drug_a,
+                            "drug_b": drug_b,
+                            "severity": severity,
+                            "mechanism": "Detected via graph traversal",
+                            "clinical_effect": f"Potential interaction (confidence: {best_path.confidence:.2f})",
+                            "confidence": best_path.confidence,
+                            "evidence_sources": best_path.evidence_sources
+                        })
+            
+            # Generate recommendations
+            recommendations = []
+            if severity_counts["major"] > 0 or severity_counts["contraindicated"] > 0:
+                recommendations.append("Consult healthcare provider immediately")
+                recommendations.append("Consider alternative medications")
+            elif severity_counts["moderate"] > 0:
+                recommendations.append("Monitor for interaction effects")
+                recommendations.append("Discuss with healthcare provider")
+            else:
+                recommendations.append("Standard monitoring recommended")
+            
+            return InteractionAnalysisResponse(
+                interactions=interactions,
+                severity_summary=severity_counts,
+                recommendations=recommendations
+            )
+        else:
+            # Return mock response
+            return InteractionAnalysisResponse(
+                interactions=[
+                    {
+                        "drug_a": request.drug_ids[0] if len(request.drug_ids) > 0 else "",
+                        "drug_b": request.drug_ids[1] if len(request.drug_ids) > 1 else "",
+                        "severity": "moderate",
+                        "mechanism": "CYP450 enzyme interaction",
+                        "clinical_effect": "Increased drug levels"
+                    }
+                ],
+                severity_summary={
+                    "minor": 0,
+                    "moderate": 1,
+                    "major": 0,
+                    "contraindicated": 0
+                },
+                recommendations=[
+                    "Monitor for signs of increased drug effect",
+                    "Consider dosage adjustment"
+                ]
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error analyzing interactions: {str(e)}")
 

@@ -20,6 +20,9 @@ wheels/
 .installed.cfg
 *.egg
 
+# Dependencies (use pyproject.toml with uv instead)
+requirements.txt
+
 # Virtual Environment
 venv/
 env/
@@ -27,6 +30,7 @@ ENV/
 
 # Environment Variables
 .env
+.env.local
 
 # IDE
 .vscode/

@@ -114,7 +114,7 @@ if command -v uv &> /dev/null; then
     uv sync
 else
     echo "⚠️  uv not found. Please install uv: https://github.com/astral-sh/uv"
-    echo "Or use pip: pip install -r requirements.txt"
+    echo "Installation: curl -LsSf https://astral.sh/uv/install.sh | sh"
 fi
 
 echo ""

@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     
+    # Feature Flags
+    USE_MOCK_SERVICES: bool = os.getenv("USE_MOCK_SERVICES", "true").lower() == "true"
+    USE_REAL_LOGIC: bool = os.getenv("USE_REAL_LOGIC", "true").lower() == "true"  # Use real NLP/reasoning logic
+    
     # AWS Configuration
     AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
     AWS_ACCESS_KEY_ID: Optional[str] = os.getenv("AWS_ACCESS_KEY_ID")

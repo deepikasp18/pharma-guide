@@ -224,7 +224,7 @@ If you want to use real AWS services with free tier:
 
 ```bash
 # Install AWS CLI
-pip install awscli
+uv pip install awscli
 
 # Configure credentials
 aws configure
@@ -257,7 +257,7 @@ LocalStack provides local AWS service emulation:
 
 ```bash
 # Install LocalStack
-pip install localstack
+uv pip install localstack
 
 # Start LocalStack
 localstack start -d

@@ -213,8 +213,8 @@ python -m spacy download en_core_web_sm
 python -m spacy download en_core_web_md
 
 # Medical NER (requires scispacy)
-pip install scispacy
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
+uv pip install scispacy
+uv pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
 ```
 
 ## Troubleshooting Questions
@@ -300,7 +300,11 @@ uv sync
 
 Or if uv is not installed:
 ```bash
-pip install -e .
+# Install uv first
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Then sync dependencies
+uv sync
 ```
 
 ### Q: Server won't start

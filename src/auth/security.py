@@ -11,22 +11,25 @@ SECRET_KEY = "pharmaguide-secret-key-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing - configure bcrypt with truncate_error=False to handle longer passwords
+# Password hashing - bcrypt has a 72 byte limit, so we truncate passwords
 pwd_context = CryptContext(
     schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__truncate_error=False
+    deprecated="auto"
 )
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    # Truncate to 72 bytes for bcrypt compatibility
+    password_bytes = plain_password.encode('utf-8')[:72]
+    return pwd_context.verify(password_bytes.decode('utf-8', errors='ignore'), hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password"""
-    return pwd_context.hash(password)
+    """Hash a password (truncates to 72 bytes for bcrypt)"""
+    # Truncate to 72 bytes for bcrypt compatibility
+    password_bytes = password.encode('utf-8')[:72]
+    return pwd_context.hash(password_bytes.decode('utf-8', errors='ignore'))
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

@@ -66,8 +66,11 @@ echo "=========================================="
 echo ""
 
 # Run the application with auto-reload
+# Convert LOG_LEVEL to lowercase for uvicorn
+LOG_LEVEL_LOWER=$(echo "${LOG_LEVEL:-info}" | tr '[:upper:]' '[:lower:]')
+
 uv run uvicorn src.main:app \
     --reload \
     --host ${API_HOST:-0.0.0.0} \
     --port ${API_PORT:-8000} \
-    --log-level ${LOG_LEVEL:-info}
+    --log-level ${LOG_LEVEL_LOWER}

@@ -195,6 +195,8 @@ pharma-guide/
 
 ## Documentation
 
+- [Full-Stack Development Guide](FULLSTACK_GUIDE.md) - Running frontend + backend together
+- [Quick Start Guide](QUICKSTART.md) - Get started in 3 steps
 - [Environment Setup Guide](docs/ENVIRONMENT_SETUP.md) - Detailed configuration instructions
 - [Environment Variables Reference](docs/ENVIRONMENT_VARIABLES.md) - Complete variable documentation
 - [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) - Running without AWS
