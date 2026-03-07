@@ -41,10 +41,27 @@ export interface Alert {
 }
 
 export interface QueryResponse {
-  answer: string;
+  query_id: string;
+  user_id: string;
+  original_query: string;
+  intent: string;
+  entities: Array<{
+    text: string;
+    type: string;
+    confidence: number;
+    normalized_form?: string;
+  }>;
+  results: Array<{
+    type: string;
+    name: string;
+    severity?: string;
+    frequency?: string;
+    description?: string;
+    management?: string;
+  }>;
+  evidence_sources: string[];
   confidence: number;
-  sources: string[];
-  relatedInfo?: string[];
+  timestamp: string;
 }
 
 export interface Symptom {
