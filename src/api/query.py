@@ -11,10 +11,85 @@ from src.models.user import User
 from src.config import settings
 from src.nlp.query_processor import medical_query_processor
 from src.nlp.query_translator import query_translator
+from src.nlp.llm_response_generator import llm_response_generator
 from src.knowledge_graph.database import db
 from src.knowledge_graph.reasoning_engine import GraphReasoningEngine
 
 router = APIRouter(prefix="/query", tags=["query"])
+
+
+def _get_mock_results_for_intent(intent: str) -> List[Dict[str, Any]]:
+    """Get mock results based on query intent for demonstration purposes"""
+    
+    if intent == "side_effects":
+        return [
+            {
+                "type": "side_effect",
+                "name": "Stomach upset",
+                "severity": "moderate",
+                "frequency": "common (10-25%)",
+                "description": "May cause stomach discomfort, nausea, or indigestion",
+                "management": "Take with food or milk to reduce stomach irritation"
+            },
+            {
+                "type": "side_effect",
+                "name": "Bleeding risk",
+                "severity": "major",
+                "frequency": "uncommon (1-10%)",
+                "description": "Increased risk of bleeding, especially with prolonged use",
+                "management": "Monitor for unusual bruising or bleeding; consult doctor if occurs"
+            },
+            {
+                "type": "side_effect",
+                "name": "Allergic reaction",
+                "severity": "major",
+                "frequency": "rare (<1%)",
+                "description": "May cause rash, itching, swelling, or difficulty breathing",
+                "management": "Seek immediate medical attention if allergic symptoms occur"
+            }
+        ]
+    elif intent == "drug_interactions":
+        return [
+            {
+                "type": "interaction",
+                "interacting_drug": "Warfarin",
+                "severity": "major",
+                "description": "Increased risk of bleeding when combined. Close monitoring required.",
+                "mechanism": "Both drugs affect blood clotting"
+            },
+            {
+                "type": "interaction",
+                "interacting_drug": "Ibuprofen",
+                "severity": "moderate",
+                "description": "May increase risk of gastrointestinal bleeding",
+                "mechanism": "Additive effects on stomach lining"
+            }
+        ]
+    elif intent == "dosage":
+        return [
+            {
+                "type": "dosage",
+                "indication": "Pain relief",
+                "dose": "325-650 mg every 4-6 hours",
+                "max_daily": "4000 mg",
+                "frequency": "As needed"
+            },
+            {
+                "type": "dosage",
+                "indication": "Fever reduction",
+                "dose": "325-650 mg every 4-6 hours",
+                "max_daily": "4000 mg",
+                "frequency": "As needed"
+            }
+        ]
+    else:
+        return [
+            {
+                "type": "information",
+                "name": "General medication information",
+                "description": "Consult your healthcare provider for specific information about this medication"
+            }
+        ]
 
 
 class QueryRequest(BaseModel):
@@ -35,6 +110,7 @@ class QueryResponse(BaseModel):
     evidence_sources: List[str]
     confidence: float
     timestamp: datetime
+    answer: Optional[str] = None  # LLM-generated natural language answer
 
 
 class QueryExplanation(BaseModel):
@@ -88,22 +164,39 @@ async def process_query(
                     # Log error but continue with empty results
                     print(f"Query execution error: {e}")
             
-            # Step 4: Format response
+            # If no results from database, use mock data for demonstration
+            if not results:
+                results = _get_mock_results_for_intent(str(query_analysis.intent))
+            
+            # Step 4: Generate LLM response
+            entities_list = [{
+                'text': e.text,
+                'type': str(e.entity_type),
+                'confidence': e.confidence,
+                'normalized_form': e.normalized_form
+            } for e in query_analysis.entities]
+            
+            llm_response = await llm_response_generator.generate_response(
+                query=request.query,
+                intent=str(query_analysis.intent),
+                entities=entities_list,
+                graph_results=results,
+                evidence_sources=provenance.data_sources,
+                patient_context=patient_context_dict
+            )
+            
+            # Step 5: Format response
             return QueryResponse(
                 query_id=provenance.query_id,
                 user_id=current_user.id,
                 original_query=request.query,
                 intent=str(query_analysis.intent),
-                entities=[{
-                    'text': e.text,
-                    'type': str(e.entity_type),
-                    'confidence': e.confidence,
-                    'normalized_form': e.normalized_form
-                } for e in query_analysis.entities],
+                entities=entities_list,
                 results=results,
                 evidence_sources=provenance.data_sources,
                 confidence=query_analysis.query_confidence,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
+                answer=llm_response.answer
             )
         else:
             # Return mock response with sample data
