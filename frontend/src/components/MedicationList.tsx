@@ -1,26 +1,73 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { patientAPI } from '../api'
 import type { Medication } from '../types'
 
-interface Props {
-  medications: Medication[]
-  onAdd: (medication: Medication) => void
-  onRemove: (id: string) => void
-}
-
-export default function MedicationList({ medications, onAdd, onRemove }: Props) {
+export default function MedicationList() {
+  const [loading, setLoading] = useState(true)
+  const [medications, setMedications] = useState<Medication[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState<Medication>({
+  const [formData, setFormData] = useState<Omit<Medication, 'id'>>({
     name: '',
     dosage: '',
     frequency: '',
     startDate: new Date().toISOString().split('T')[0]
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    loadMedications()
+  }, [])
+
+  const loadMedications = async () => {
+    setLoading(true)
+    try {
+      const data = await patientAPI.getMedications()
+      setMedications(data)
+    } catch (error) {
+      console.error('Error loading medications:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onAdd({ ...formData, id: Date.now().toString() })
-    setFormData({ name: '', dosage: '', frequency: '', startDate: new Date().toISOString().split('T')[0] })
-    setShowForm(false)
+    setLoading(true)
+    try {
+      const newMed = await patientAPI.addMedication(formData)
+      setMedications([...medications, newMed])
+      setFormData({ name: '', dosage: '', frequency: '', startDate: new Date().toISOString().split('T')[0] })
+      setShowForm(false)
+    } catch (error) {
+      console.error('Error adding medication:', error)
+      alert('Failed to add medication. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this medication?')) return
+    
+    setLoading(true)
+    try {
+      await patientAPI.deleteMedication(id)
+      setMedications(medications.filter(m => m.id !== id))
+    } catch (error) {
+      console.error('Error deleting medication:', error)
+      alert('Failed to delete medication. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading && medications.length === 0) {
+    return (
+      <div className="glass-card-strong p-8">
+        <div className="flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -36,6 +83,7 @@ export default function MedicationList({ medications, onAdd, onRemove }: Props) 
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
+          disabled={loading}
           className={showForm ? 'px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium' : 'btn-primary'}
         >
           {showForm ? 'Cancel' : '+ Add Medication'}
@@ -92,9 +140,10 @@ export default function MedicationList({ medications, onAdd, onRemove }: Props) 
           </div>
           <button
             type="submit"
-            className="w-full btn-primary"
+            disabled={loading}
+            className="w-full btn-primary disabled:opacity-50"
           >
-            Add Medication
+            {loading ? 'Adding...' : 'Add Medication'}
           </button>
         </form>
       )}
@@ -126,8 +175,9 @@ export default function MedicationList({ medications, onAdd, onRemove }: Props) 
                 </div>
               </div>
               <button
-                onClick={() => med.id && onRemove(med.id)}
-                className="relative ml-4 p-3 text-danger-600 hover:bg-danger-50 rounded-xl transition-all duration-200 hover:scale-110"
+                onClick={() => med.id && handleDelete(med.id)}
+                disabled={loading}
+                className="relative ml-4 p-3 text-danger-600 hover:bg-danger-50 rounded-xl transition-all duration-200 hover:scale-110 disabled:opacity-50"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -140,4 +190,3 @@ export default function MedicationList({ medications, onAdd, onRemove }: Props) 
     </div>
   )
 }
-

@@ -5,6 +5,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from src.auth.dependencies import get_current_user
+from src.models.user import User
 
 # Note: These imports are for type hints and future implementation
 # from src.nlp.query_processor import MedicalQueryProcessor
@@ -25,6 +27,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     """Query response model"""
     query_id: str
+    user_id: str
     original_query: str
     intent: str
     entities: List[Dict[str, Any]]
@@ -37,6 +40,7 @@ class QueryResponse(BaseModel):
 class QueryExplanation(BaseModel):
     """Query explanation model"""
     query_id: str
+    user_id: str
     reasoning_steps: List[str]
     graph_paths: List[List[str]]
     data_sources: List[str]
@@ -44,7 +48,10 @@ class QueryExplanation(BaseModel):
 
 
 @router.post("/process", response_model=QueryResponse)
-async def process_query(request: QueryRequest):
+async def process_query(
+    request: QueryRequest,
+    current_user: User = Depends(get_current_user)
+):
     """
     Process natural language health questions
     
@@ -57,6 +64,7 @@ async def process_query(request: QueryRequest):
         
         return QueryResponse(
             query_id=f"query_{datetime.utcnow().timestamp()}",
+            user_id=current_user.id,
             original_query=request.query,
             intent="medication_query",
             entities=[],
@@ -70,7 +78,10 @@ async def process_query(request: QueryRequest):
 
 
 @router.get("/explain/{query_id}", response_model=QueryExplanation)
-async def explain_query(query_id: str):
+async def explain_query(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
     """
     Provide query explanation and evidence sources
     
@@ -78,9 +89,10 @@ async def explain_query(query_id: str):
     including reasoning steps and knowledge graph paths.
     """
     try:
-        # TODO: Retrieve query explanation from storage
+        # TODO: Retrieve query explanation from storage and verify user_id matches
         return QueryExplanation(
             query_id=query_id,
+            user_id=current_user.id,
             reasoning_steps=[
                 "Parsed natural language query",
                 "Extracted medical entities",
@@ -108,18 +120,22 @@ class FeedbackRequest(BaseModel):
 
 
 @router.post("/feedback")
-async def submit_feedback(feedback: FeedbackRequest):
+async def submit_feedback(
+    feedback: FeedbackRequest,
+    current_user: User = Depends(get_current_user)
+):
     """
     Collect user feedback for query improvement
     
     Stores user feedback to improve query understanding and response quality.
     """
     try:
-        # TODO: Store feedback in database
+        # TODO: Store feedback in database with user_id
         return {
             "status": "success",
             "message": "Feedback received",
-            "query_id": feedback.query_id
+            "query_id": feedback.query_id,
+            "user_id": current_user.id
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error submitting feedback: {str(e)}")

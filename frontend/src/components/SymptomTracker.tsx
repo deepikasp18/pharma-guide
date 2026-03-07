@@ -1,25 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { patientAPI } from '../api'
 import type { Symptom } from '../types'
 
-interface Props {
-  symptoms: Symptom[]
-  onAdd: (symptom: Symptom) => void
-}
-
-export default function SymptomTracker({ symptoms, onAdd }: Props) {
+export default function SymptomTracker() {
+  const [loading, setLoading] = useState(true)
+  const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState<Symptom>({
+  const [formData, setFormData] = useState<Omit<Symptom, 'id'>>({
     name: '',
     severity: 5,
     date: new Date().toISOString().split('T')[0],
     notes: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    loadSymptoms()
+  }, [])
+
+  const loadSymptoms = async () => {
+    setLoading(true)
+    try {
+      const data = await patientAPI.getSymptoms()
+      setSymptoms(data)
+    } catch (error) {
+      console.error('Error loading symptoms:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onAdd({ ...formData, id: Date.now().toString() })
-    setFormData({ name: '', severity: 5, date: new Date().toISOString().split('T')[0], notes: '' })
-    setShowForm(false)
+    setLoading(true)
+    try {
+      const newSymptom = await patientAPI.addSymptom(formData)
+      setSymptoms([...symptoms, newSymptom])
+      setFormData({ name: '', severity: 5, date: new Date().toISOString().split('T')[0], notes: '' })
+      setShowForm(false)
+    } catch (error) {
+      console.error('Error adding symptom:', error)
+      alert('Failed to add symptom. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getSeverityColor = (severity: number) => {
@@ -32,6 +55,16 @@ export default function SymptomTracker({ symptoms, onAdd }: Props) {
     if (severity <= 3) return 'bg-success-500'
     if (severity <= 6) return 'bg-warning-500'
     return 'bg-danger-500'
+  }
+
+  if (loading && symptoms.length === 0) {
+    return (
+      <div className="glass-card-strong p-8">
+        <div className="flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -47,6 +80,7 @@ export default function SymptomTracker({ symptoms, onAdd }: Props) {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
+          disabled={loading}
           className={showForm ? 'px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium' : 'px-6 py-3 bg-gradient-to-r from-warning-500 to-warning-600 text-white rounded-xl hover:from-warning-600 hover:to-warning-700 transition-all duration-200 shadow-soft hover:shadow-medium font-medium'}
         >
           {showForm ? 'Cancel' : '+ Log Symptom'}
@@ -109,9 +143,10 @@ export default function SymptomTracker({ symptoms, onAdd }: Props) {
           
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-gradient-to-r from-warning-500 to-warning-600 text-white rounded-xl hover:from-warning-600 hover:to-warning-700 transition-all duration-200 shadow-soft hover:shadow-medium font-medium"
+            disabled={loading}
+            className="w-full px-6 py-3 bg-gradient-to-r from-warning-500 to-warning-600 text-white rounded-xl hover:from-warning-600 hover:to-warning-700 transition-all duration-200 shadow-soft hover:shadow-medium font-medium disabled:opacity-50"
           >
-            Log Symptom
+            {loading ? 'Logging...' : 'Log Symptom'}
           </button>
         </form>
       )}

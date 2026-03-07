@@ -8,6 +8,15 @@ const api = axios.create({
   },
 });
 
+// Add token to all requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const queryAPI = {
   processQuery: async (query: string, patientId?: string): Promise<QueryResponse> => {
     const response = await api.post('/query/process', { query, patient_id: patientId });
@@ -16,24 +25,72 @@ export const queryAPI = {
 };
 
 export const patientAPI = {
-  createProfile: async (profile: PatientProfile): Promise<PatientProfile> => {
+  getProfile: async (): Promise<PatientProfile | null> => {
+    try {
+      const response = await api.get('/patient/profile');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        // Token expired, redirect to login
+        localStorage.removeItem('token');
+        window.location.reload();
+      }
+      return null;
+    }
+  },
+  
+  createProfile: async (profile: Omit<PatientProfile, 'id'>): Promise<PatientProfile> => {
     const response = await api.post('/patient/profile', profile);
     return response.data;
   },
   
-  updateProfile: async (id: string, profile: Partial<PatientProfile>): Promise<PatientProfile> => {
-    const response = await api.put(`/patient/profile/${id}`, profile);
+  updateProfile: async (profile: Omit<PatientProfile, 'id'>): Promise<PatientProfile> => {
+    const response = await api.post('/patient/profile', profile);
     return response.data;
   },
   
-  addMedication: async (patientId: string, medication: Medication): Promise<Medication> => {
-    const response = await api.post(`/patient/${patientId}/medications`, medication);
+  getMedications: async (): Promise<Medication[]> => {
+    try {
+      const response = await api.get('/patient/medications');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        window.location.reload();
+      }
+      return [];
+    }
+  },
+  
+  addMedication: async (medication: Omit<Medication, 'id'>): Promise<Medication> => {
+    const response = await api.post('/patient/medications', medication);
     return response.data;
   },
   
-  getMedications: async (patientId: string): Promise<Medication[]> => {
-    const response = await api.get(`/patient/${patientId}/medications`);
+  deleteMedication: async (medicationId: string): Promise<void> => {
+    await api.delete(`/patient/medications/${medicationId}`);
+  },
+  
+  getSymptoms: async (): Promise<Symptom[]> => {
+    try {
+      const response = await api.get('/patient/symptoms');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        window.location.reload();
+      }
+      return [];
+    }
+  },
+  
+  addSymptom: async (symptom: Omit<Symptom, 'id'>): Promise<Symptom> => {
+    const response = await api.post('/patient/symptoms', symptom);
     return response.data;
+  },
+  
+  deleteSymptom: async (symptomId: string): Promise<void> => {
+    await api.delete(`/patient/symptoms/${symptomId}`);
   },
 };
 
@@ -48,16 +105,21 @@ export const alertsAPI = {
   },
 };
 
-export const symptomsAPI = {
-  logSymptom: async (patientId: string, symptom: Symptom): Promise<Symptom> => {
-    const response = await api.post(`/patient/${patientId}/symptoms`, symptom);
+export default api;
+
+export const authAPI = {
+  register: async (username: string, password: string): Promise<{ access_token: string; token_type: string }> => {
+    const response = await api.post('/auth/register', { username, password });
     return response.data;
   },
   
-  getSymptoms: async (patientId: string): Promise<Symptom[]> => {
-    const response = await api.get(`/patient/${patientId}/symptoms`);
+  login: async (username: string, password: string): Promise<{ access_token: string; token_type: string }> => {
+    const response = await api.post('/auth/login', { username, password });
+    return response.data;
+  },
+  
+  getCurrentUser: async (): Promise<{ username: string; user_id: string }> => {
+    const response = await api.get('/auth/me');
     return response.data;
   },
 };
-
-export default api;

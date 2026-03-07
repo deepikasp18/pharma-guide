@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
+import Auth from './components/Auth'
 import QueryInterface from './components/QueryInterface'
 import PatientProfileForm from './components/PatientProfileForm'
 import MedicationList from './components/MedicationList'
@@ -9,15 +10,37 @@ import AlertsPanel from './components/AlertsPanel'
 import type { PatientProfile, Medication, Alert, Symptom } from './types'
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(null)
-  const [medications, setMedications] = useState<Medication[]>([])
   const [alerts, setAlerts] = useState<Alert[]>([])
-  const [symptoms, setSymptoms] = useState<Symptom[]>([])
   const [activeTab, setActiveTab] = useState<'query' | 'profile' | 'medications' | 'symptoms'>('query')
+
+  useEffect(() => {
+    // Check for existing token on mount
+    const storedToken = localStorage.getItem('token')
+    if (storedToken) {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const handleAuthSuccess = (newToken: string) => {
+    setIsAuthenticated(true)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setIsAuthenticated(false)
+    setPatientProfile(null)
+    setAlerts([])
+  }
+
+  if (!isAuthenticated) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />
+  }
 
   return (
     <div className="min-h-screen pb-12">
-      <Header />
+      <Header onLogout={handleLogout} />
       
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Alerts Banner */}
@@ -101,31 +124,21 @@ function App() {
             )}
             
             {activeTab === 'profile' && (
-              <PatientProfileForm
-                profile={patientProfile}
-                onSave={setPatientProfile}
-              />
+              <PatientProfileForm onProfileUpdate={setPatientProfile} />
             )}
             
             {activeTab === 'medications' && (
-              <MedicationList
-                medications={medications}
-                onAdd={(med) => setMedications([...medications, med])}
-                onRemove={(id) => setMedications(medications.filter(m => m.id !== id))}
-              />
+              <MedicationList />
             )}
             
             {activeTab === 'symptoms' && (
-              <SymptomTracker
-                symptoms={symptoms}
-                onAdd={(symptom) => setSymptoms([...symptoms, symptom])}
-              />
+              <SymptomTracker />
             )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <SideEffectsDisplay medications={medications} />
+            <SideEffectsDisplay medications={[]} />
             
             {patientProfile && (
               <div className="glass-card p-6">
@@ -141,10 +154,6 @@ function App() {
                   <div className="flex justify-between items-center p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl">
                     <span className="text-sm font-medium text-gray-700">Age</span>
                     <span className="text-lg font-bold text-primary-600">{patientProfile.age}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-accent-50 to-success-50 rounded-xl">
-                    <span className="text-sm font-medium text-gray-700">Medications</span>
-                    <span className="text-lg font-bold text-accent-600">{medications.length}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gradient-to-r from-success-50 to-primary-50 rounded-xl">
                     <span className="text-sm font-medium text-gray-700">Conditions</span>

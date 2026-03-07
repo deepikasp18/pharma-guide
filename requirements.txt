@@ -24,6 +24,7 @@ opensearch-py==2.4.0
 # Security and Encryption
 cryptography==41.0.8
 passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 python-jose[cryptography]==3.3.0
 
 # Testing
