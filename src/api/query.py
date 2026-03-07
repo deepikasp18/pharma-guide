@@ -106,15 +106,61 @@ async def process_query(
                 timestamp=datetime.utcnow()
             )
         else:
-            # Return mock response
+            # Return mock response with sample data
             return QueryResponse(
                 query_id=f"query_{datetime.utcnow().timestamp()}",
                 user_id=current_user.id,
                 original_query=request.query,
-                intent="medication_query",
-                entities=[],
-                results=[],
-                evidence_sources=["OnSIDES", "SIDER", "DrugBank"],
+                intent="side_effects",
+                entities=[
+                    {
+                        "text": "aspirin",
+                        "type": "drug",
+                        "confidence": 0.95,
+                        "normalized_form": "aspirin"
+                    },
+                    {
+                        "text": "headache",
+                        "type": "symptom",
+                        "confidence": 0.88,
+                        "normalized_form": "headache"
+                    }
+                ],
+                results=[
+                    {
+                        "type": "side_effect",
+                        "name": "Stomach upset",
+                        "severity": "moderate",
+                        "frequency": "common (10-25%)",
+                        "description": "May cause stomach discomfort, nausea, or indigestion",
+                        "management": "Take with food or milk to reduce stomach irritation"
+                    },
+                    {
+                        "type": "side_effect",
+                        "name": "Bleeding risk",
+                        "severity": "major",
+                        "frequency": "uncommon (1-10%)",
+                        "description": "Increased risk of bleeding, especially with prolonged use",
+                        "management": "Monitor for unusual bruising or bleeding; consult doctor if occurs"
+                    },
+                    {
+                        "type": "side_effect",
+                        "name": "Allergic reaction",
+                        "severity": "major",
+                        "frequency": "rare (<1%)",
+                        "description": "May cause rash, itching, swelling, or difficulty breathing",
+                        "management": "Seek immediate medical attention if allergic symptoms occur"
+                    },
+                    {
+                        "type": "side_effect",
+                        "name": "Ringing in ears",
+                        "severity": "minor",
+                        "frequency": "uncommon (1-10%)",
+                        "description": "Tinnitus or ringing sensation in the ears",
+                        "management": "Usually resolves when medication is stopped"
+                    }
+                ],
+                evidence_sources=["OnSIDES", "SIDER", "DrugBank", "FDA Adverse Events"],
                 confidence=0.85,
                 timestamp=datetime.utcnow()
             )
