@@ -9,7 +9,10 @@ from pydantic import ConfigDict
 class Settings(BaseSettings):
     """Application settings"""
     
-    model_config = ConfigDict(env_file=".env")
+    model_config = ConfigDict(
+        env_file=".env",
+        extra='ignore'  # Allow extra fields from .env
+    )
     
     # Environment
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
@@ -38,5 +41,20 @@ class Settings(BaseSettings):
     
     # Encryption
     ENCRYPTION_KEY: Optional[str] = os.getenv("ENCRYPTION_KEY")
+    
+    # API Configuration
+    API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
+    API_PORT: int = int(os.getenv("API_PORT", "8000"))
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "*")
+    
+    # Logging
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    
+    # NLP Configuration
+    SPACY_MODEL: str = os.getenv("SPACY_MODEL", "en_core_web_sm")
+    
+    # Gemini Configuration
+    GEMINI_API_KEY: Optional[str] = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "models/gemini-3-flash-preview")
 
 settings = Settings()
