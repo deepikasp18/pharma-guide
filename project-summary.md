@@ -123,14 +123,6 @@ Verifies universal system invariants across randomized inputs — including know
 **27 Core Correctness Properties** are formally specified and validated, spanning semantic query processing, multi-dataset integration, drug interaction detection, patient personalization, evidence provenance, and security controls.
 
 
-## Development Experience
-
-PharmaGuide is designed to be accessible from day one:
-
-- **Local development requires no AWS account** — a full mock service layer simulates Neptune and OpenSearch, enabling immediate development and testing
-- **Automated setup scripts** (`setup_local_dev.sh`, `run_local.sh`) provide a working environment in minutes
-- **Comprehensive documentation** covers local setup, environment configuration, mock data systems, graph reasoning architecture, and query translation internals
-
 ## Impact and Value Proposition
 
 | Stakeholder | Value Delivered |
