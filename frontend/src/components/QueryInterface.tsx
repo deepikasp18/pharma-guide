@@ -23,7 +23,13 @@ export default function QueryInterface({ patientId }: Props) {
       setResponse(result)
     } catch (error: any) {
       console.error('Query failed:', error)
-      setError(error.response?.data?.detail || 'Failed to process query. Please try again.')
+      if (error.response?.status === 401) {
+        // Token expired or invalid - clear and reload
+        localStorage.removeItem('token')
+        window.location.reload()
+      } else {
+        setError(error.response?.data?.detail || 'Failed to process query. Please try again.')
+      }
       setResponse(null)
     } finally {
       setLoading(false)

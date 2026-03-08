@@ -236,6 +236,19 @@ Please provide a well-structured response that:
         
         self.logger.info("Using fallback template-based response generation")
         
+        # Check if results contain an error
+        if graph_results and graph_results[0].get('type') == 'error':
+            error_result = graph_results[0]
+            answer = f"**{error_result.get('name', 'Unable to process query')}**\n\n"
+            answer += error_result.get('description', 'We apologize, but we are unable to process your query at this time.')
+            
+            return LLMResponse(
+                answer=answer,
+                confidence=0.0,
+                sources_used=[],
+                reasoning="Unable to find information in database"
+            )
+        
         # Extract key information
         drug_entities = [e for e in entities if e['type'] == 'drug']
         

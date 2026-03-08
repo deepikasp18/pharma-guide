@@ -14,82 +14,107 @@ from src.nlp.query_translator import query_translator
 from src.nlp.llm_response_generator import llm_response_generator
 from src.knowledge_graph.database import db
 from src.knowledge_graph.reasoning_engine import GraphReasoningEngine
+from src.data.drug_database import drug_db
 
 router = APIRouter(prefix="/query", tags=["query"])
 
 
-def _get_mock_results_for_intent(intent: str) -> List[Dict[str, Any]]:
-    """Get mock results based on query intent for demonstration purposes"""
+def _get_results_from_drug_db(intent: str, entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Get results from in-memory drug database based on query intent and entities"""
+    results = []
     
+    # Find drug entities
+    drug_entities = [e for e in entities if e.get('type') == 'drug']
+    
+    if not drug_entities:
+        # No drug found in query
+        return [{
+            "type": "error",
+            "name": "Unable to process query",
+            "description": "We apologize, but we couldn't identify a specific medication in your query. Currently, our database includes information for: " + ", ".join(drug_db.list_all_drugs()) + ". Please try asking about one of these medications."
+        }]
+    
+    # Process first drug entity (can be extended to handle multiple drugs)
+    drug_name = drug_entities[0].get('text', '').lower()
+    drug_data = drug_db.search_drug(drug_name)
+    
+    if not drug_data:
+        # Drug not found in database
+        return [{
+            "type": "error",
+            "name": "Information not available",
+            "description": f"We apologize, but we currently don't have enough details to answer your query about '{drug_name}'. Our database currently includes information for the following medications: {', '.join(drug_db.list_all_drugs())}. Please try asking about one of these medications, or check back later as we continue to expand our database."
+        }]
+    
+    # Return results based on intent
     if intent == "side_effects":
-        return [
-            {
+        side_effects = drug_db.get_side_effects(drug_name)
+        for se in side_effects:
+            results.append({
                 "type": "side_effect",
-                "name": "Stomach upset",
-                "severity": "moderate",
-                "frequency": "common (10-25%)",
-                "description": "May cause stomach discomfort, nausea, or indigestion",
-                "management": "Take with food or milk to reduce stomach irritation"
-            },
-            {
-                "type": "side_effect",
-                "name": "Bleeding risk",
-                "severity": "major",
-                "frequency": "uncommon (1-10%)",
-                "description": "Increased risk of bleeding, especially with prolonged use",
-                "management": "Monitor for unusual bruising or bleeding; consult doctor if occurs"
-            },
-            {
-                "type": "side_effect",
-                "name": "Allergic reaction",
-                "severity": "major",
-                "frequency": "rare (<1%)",
-                "description": "May cause rash, itching, swelling, or difficulty breathing",
-                "management": "Seek immediate medical attention if allergic symptoms occur"
-            }
-        ]
+                "name": se["name"],
+                "severity": se["severity"],
+                "frequency": se["frequency"],
+                "description": se["description"],
+                "management": se["management"]
+            })
+    
     elif intent == "drug_interactions":
-        return [
-            {
-                "type": "interaction",
-                "interacting_drug": "Warfarin",
-                "severity": "major",
-                "description": "Increased risk of bleeding when combined. Close monitoring required.",
-                "mechanism": "Both drugs affect blood clotting"
-            },
-            {
-                "type": "interaction",
-                "interacting_drug": "Ibuprofen",
-                "severity": "moderate",
-                "description": "May increase risk of gastrointestinal bleeding",
-                "mechanism": "Additive effects on stomach lining"
-            }
-        ]
-    elif intent == "dosage":
-        return [
-            {
-                "type": "dosage",
-                "indication": "Pain relief",
-                "dose": "325-650 mg every 4-6 hours",
-                "max_daily": "4000 mg",
-                "frequency": "As needed"
-            },
-            {
-                "type": "dosage",
-                "indication": "Fever reduction",
-                "dose": "325-650 mg every 4-6 hours",
-                "max_daily": "4000 mg",
-                "frequency": "As needed"
-            }
-        ]
+        # Get interactions for this drug
+        interactions = drug_data.get("interactions", [])
+        for interacting_drug in interactions:
+            interaction_data = drug_db.get_interactions(drug_name, interacting_drug)
+            if interaction_data:
+                results.append({
+                    "type": "interaction",
+                    "interacting_drug": interacting_drug.capitalize(),
+                    "severity": interaction_data["severity"],
+                    "description": interaction_data["description"],
+                    "mechanism": interaction_data["mechanism"],
+                    "management": interaction_data.get("management", "Consult healthcare provider")
+                })
+            else:
+                results.append({
+                    "type": "interaction",
+                    "interacting_drug": interacting_drug.capitalize(),
+                    "severity": "unknown",
+                    "description": f"May interact with {interacting_drug}",
+                    "mechanism": "Interaction mechanism not specified"
+                })
+    
+    elif intent == "dosing":
+        dosing = drug_db.get_dosing(drug_name)
+        if dosing:
+            for indication, dose_info in dosing.items():
+                if indication == "max_daily":
+                    continue
+                results.append({
+                    "type": "dosage",
+                    "indication": indication.replace("_", " ").title(),
+                    "dose": dose_info,
+                    "max_daily": dosing.get("max_daily", "Consult prescribing information"),
+                    "frequency": "As prescribed"
+                })
+    
     else:
-        return [
-            {
-                "type": "information",
-                "name": "General medication information",
-                "description": "Consult your healthcare provider for specific information about this medication"
-            }
-        ]
+        # General information
+        results.append({
+            "type": "information",
+            "drug_name": drug_data["name"],
+            "generic_name": drug_data.get("generic_name", ""),
+            "drug_class": drug_data.get("class", ""),
+            "description": f"{drug_data['name']} is a {drug_data.get('class', 'medication')} used for various medical conditions."
+        })
+    
+    # If no results were found for the specific intent, provide an apology
+    if not results:
+        return [{
+            "type": "error",
+            "name": "Information not available",
+            "description": f"We apologize, but we currently don't have enough details to answer your specific question about {drug_data['name']}. We have general information about this medication, but not the specific details you're looking for. Please try a different question or consult your healthcare provider."
+        }]
+    
+    return results
 
 
 class QueryRequest(BaseModel):
@@ -164,14 +189,22 @@ async def process_query(
                     # Log error but continue with empty results
                     print(f"Query execution error: {e}")
             
-            # If no results from database, use mock data for demonstration
+            # If no results from database, use in-memory drug database
             if not results:
-                results = _get_mock_results_for_intent(str(query_analysis.intent))
+                results = _get_results_from_drug_db(
+                    query_analysis.intent.value,  # Use .value to get the string value
+                    [{
+                        'text': e.text,
+                        'type': e.entity_type.value,  # Use .value to get the string value
+                        'confidence': e.confidence,
+                        'normalized_form': e.normalized_form
+                    } for e in query_analysis.entities]
+                )
             
             # Step 4: Generate LLM response
             entities_list = [{
                 'text': e.text,
-                'type': str(e.entity_type),
+                'type': e.entity_type.value,  # Use .value to get the string value
                 'confidence': e.confidence,
                 'normalized_form': e.normalized_form
             } for e in query_analysis.entities]
@@ -199,61 +232,27 @@ async def process_query(
                 answer=llm_response.answer
             )
         else:
-            # Return mock response with sample data
+            # Return mock response using drug database
+            # Use aspirin as default drug for mock mode
+            mock_entities = [
+                {
+                    "text": "aspirin",
+                    "type": "drug",
+                    "confidence": 0.95,
+                    "normalized_form": "aspirin"
+                }
+            ]
+            
+            mock_results = _get_results_from_drug_db("side_effects", mock_entities)
+            
             return QueryResponse(
                 query_id=f"query_{datetime.utcnow().timestamp()}",
                 user_id=current_user.id,
                 original_query=request.query,
                 intent="side_effects",
-                entities=[
-                    {
-                        "text": "aspirin",
-                        "type": "drug",
-                        "confidence": 0.95,
-                        "normalized_form": "aspirin"
-                    },
-                    {
-                        "text": "headache",
-                        "type": "symptom",
-                        "confidence": 0.88,
-                        "normalized_form": "headache"
-                    }
-                ],
-                results=[
-                    {
-                        "type": "side_effect",
-                        "name": "Stomach upset",
-                        "severity": "moderate",
-                        "frequency": "common (10-25%)",
-                        "description": "May cause stomach discomfort, nausea, or indigestion",
-                        "management": "Take with food or milk to reduce stomach irritation"
-                    },
-                    {
-                        "type": "side_effect",
-                        "name": "Bleeding risk",
-                        "severity": "major",
-                        "frequency": "uncommon (1-10%)",
-                        "description": "Increased risk of bleeding, especially with prolonged use",
-                        "management": "Monitor for unusual bruising or bleeding; consult doctor if occurs"
-                    },
-                    {
-                        "type": "side_effect",
-                        "name": "Allergic reaction",
-                        "severity": "major",
-                        "frequency": "rare (<1%)",
-                        "description": "May cause rash, itching, swelling, or difficulty breathing",
-                        "management": "Seek immediate medical attention if allergic symptoms occur"
-                    },
-                    {
-                        "type": "side_effect",
-                        "name": "Ringing in ears",
-                        "severity": "minor",
-                        "frequency": "uncommon (1-10%)",
-                        "description": "Tinnitus or ringing sensation in the ears",
-                        "management": "Usually resolves when medication is stopped"
-                    }
-                ],
-                evidence_sources=["OnSIDES", "SIDER", "DrugBank", "FDA Adverse Events"],
+                entities=mock_entities,
+                results=mock_results,
+                evidence_sources=["In-Memory Drug Database"],
                 confidence=0.85,
                 timestamp=datetime.utcnow()
             )

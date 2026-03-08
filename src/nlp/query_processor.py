@@ -73,10 +73,18 @@ class MedicalEntityExtractor:
         
         # Drug name patterns
         self.drug_patterns = [
-            r'\b[A-Z][a-z]+(?:pril|olol|mycin|cillin|statin|zole|pine|ide|ine|ate|al)\b',  # Common drug suffixes
-            r'\b(?:aspirin|ibuprofen|acetaminophen|tylenol|advil|motrin|aleve)\b',  # Common OTC drugs
-            r'\b[A-Z][a-z]{3,}(?:\s+(?:HCL|XR|ER|SR|CR|IR|OD))?(?:\s+\d+\s*mg)?\b'  # Generic drug patterns
+            r'\b(?:aspirin|ibuprofen|acetaminophen|tylenol|advil|motrin|aleve|naproxen)\b',  # Common OTC drugs
+            r'\b(?:lisinopril|atorvastatin|metformin|amlodipine|omeprazole|losartan|simvastatin)\b',  # Common prescription drugs
+            r'\b[A-Z][a-z]+(?:pril|olol|mycin|cillin|statin|zole|pine|ide|ine|ate|al)\b',  # Common drug suffixes (capitalized)
         ]
+        
+        # Common words to exclude from drug matching
+        self.common_words = {
+            'what', 'are', 'the', 'side', 'effects', 'of', 'can', 'take', 'with',
+            'how', 'much', 'when', 'should', 'have', 'does', 'will', 'would',
+            'could', 'may', 'might', 'this', 'that', 'these', 'those', 'and',
+            'or', 'but', 'for', 'from', 'about', 'after', 'before', 'during'
+        }
         
         # Condition patterns
         self.condition_patterns = [
@@ -185,14 +193,17 @@ class MedicalEntityExtractor:
         # Extract drugs
         for pattern in self.drug_patterns:
             for match in re.finditer(pattern, text, re.IGNORECASE):
-                entities.append(ExtractedEntity(
-                    text=match.group(),
-                    entity_type=EntityType.DRUG,
-                    confidence=0.7,
-                    start_pos=match.start(),
-                    end_pos=match.end(),
-                    normalized_form=match.group().lower()
-                ))
+                matched_text = match.group().lower()
+                # Skip common words
+                if matched_text not in self.common_words:
+                    entities.append(ExtractedEntity(
+                        text=match.group(),
+                        entity_type=EntityType.DRUG,
+                        confidence=0.7,
+                        start_pos=match.start(),
+                        end_pos=match.end(),
+                        normalized_form=matched_text
+                    ))
         
         # Extract conditions
         for pattern in self.condition_patterns:
