@@ -1,10 +1,11 @@
 # PharmaGuide Health Companion
 ## Project Summary
+
 ## Executive Overview
 
-PharmaGuide is an AI-powered personal health companion platform built on a comprehensive medical knowledge graph architecture. Designed to bridge the gap between complex pharmaceutical data and everyday patient understanding, PharmaGuide transforms authoritative medical datasets into personalized, evidence-based health insights delivered through natural language interaction.
+PharmaGuide is an AI-powered personal health companion platform designed to help patients understand their medications better. The platform provides natural language query processing for medication information, patient profile management, and symptom tracking — all within a secure, user-friendly interface.
 
-At its core, PharmaGuide is not merely a drug information lookup tool — it is an intelligent reasoning system capable of traversing millions of interconnected medical relationships to answer nuanced, patient-specific questions in real time. The platform integrates six major medical data sources, supports natural language queries, monitors drug interactions proactively, and maintains strict HIPAA-compliant security — all within a scalable cloud architecture built for healthcare.
+At its core, PharmaGuide aims to bridge the gap between complex pharmaceutical information and everyday patient understanding by providing personalized, evidence-based health insights through natural language interaction. The platform is built with a knowledge graph architecture in mind for future scalability, currently operating with an in-memory drug database for immediate functionality.
 
 ## The Problem
 
@@ -14,6 +15,8 @@ Patients today face significant challenges in understanding their medications:
 - **Fragmented knowledge**: No single source captures the full picture of drug effects, interactions, contraindications, and real-world patient experiences.
 - **Lack of personalization**: Generic drug information fails to account for individual patient factors such as age, comorbidities, genetics, or polypharmacy.
 - **Delayed risk detection**: Drug-drug interactions and contraindications are often discovered reactively rather than proactively.
+- **Memory and confusion challenges**: Patients often get confused about their medications and diseases, frequently forgetting to mention critical information to their doctors during appointments — including past medical history, allergies, or current symptoms.
+- **Incomplete health context**: Most health information systems fail to consider the complete picture of a patient's health conditions, allergies, and past medical history when providing medication guidance.
 
 Healthcare providers face parallel challenges — synthesizing complex patient histories against evolving pharmaceutical evidence at the point of care is time-consuming and error-prone.
 
@@ -24,31 +27,32 @@ PharmaGuide addresses these gaps through a **knowledge graph-centric architectur
 ### Core Capabilities
 
 **1. Natural Language Query Processing**
-Patients ask questions in plain language — "What are the risks of taking Lisinopril at my age with diabetes?" — and PharmaGuide parses the intent, extracts medical entities using BioBERT-based NER, translates the query into knowledge graph traversals, and returns a personalized, evidence-backed response within 45 seconds.
+Patients ask questions in plain language — "What are the side effects of ibuprofen?" — and PharmaGuide parses the intent, extracts medical entities using NLP, and returns relevant information from the drug database with clear, understandable responses.
 
-**2. Multi-Dataset Knowledge Graph**
-The platform integrates six major medical databases into a unified graph:
+**2. In-Memory Drug Database**
+The current implementation includes an in-memory database with 5 common medications:
 
-| Dataset | Contribution |
-|---|---|
-| **OnSIDES** | 3.6M+ drug-adverse event pairs with confidence scoring |
-| **SIDER** | Side effect frequency data for 1,430 drugs and 5,880 ADRs |
-| **FAERS** | 18M+ real-world adverse event reports from the FDA |
-| **DrugBank** | Comprehensive drug mechanisms, pharmacokinetics, and interactions |
-| **DDInter** | Drug-drug interaction severity and management strategies |
-| **Drugs@FDA** | Official FDA drug approval and labeling data |
+| Medication | Class | Information Included |
+|---|---|---|
+| **Aspirin** | NSAID | Side effects, interactions, dosing |
+| **Lisinopril** | ACE Inhibitor | Side effects, interactions, dosing |
+| **Metformin** | Biguanide | Side effects, interactions, dosing |
+| **Ibuprofen** | NSAID | Side effects, interactions, dosing |
+| **Atorvastatin** | Statin | Side effects, interactions, dosing |
 
-**3. Personalized Risk Assessment**
-Patient profiles — including demographics, conditions, current medications, and genetic factors — are mapped as context layers onto graph queries. This allows the system to surface risks, rank adverse effects, and generate recommendations specifically calibrated to each patient's situation.
+The architecture supports future integration with larger medical datasets including OnSIDES, SIDER, FAERS, DrugBank, DDInter, and Drugs@FDA.
 
-**4. Proactive Interaction & Contraindication Monitoring**
-The system continuously monitors patient data against the knowledge graph. When new medications are added or profiles change, PharmaGuide automatically executes comprehensive interaction queries and generates immediate alerts for critical findings.
+**3. Patient Profile Management**
+Patient profiles — including demographics, conditions, current medications, allergies, and past medical history — can be stored and managed through the platform. PharmaGuide's system is designed to take into comprehensive consideration the user's complete health profile: existing health conditions, known allergies, past medical history, and current medications. This holistic approach is being developed to surface risks, rank adverse effects, and generate recommendations specifically calibrated to each patient's unique situation.
 
-**5. Temporal Symptom Tracking**
-Patients can log symptoms over time, allowing the system to construct temporal knowledge graph nodes linking symptom patterns to medication schedules. This enables detection of effectiveness trends and supports clinical decision-making with longitudinal evidence.
+**4. Medication and Symptom Tracking**
+Patients can log their current medications and track symptoms over time. PharmaGuide helps patients who often get confused about their medications and diseases by maintaining a comprehensive record of their health journey — ensuring they have organized information to share with their doctor during appointments.
 
-**6. Clinical Decision Support**
-A dedicated provider portal surfaces complex knowledge graph summaries in clinical formats, enabling healthcare providers to review patient medication histories, identify concerning patterns, and explore evidence-based alternatives — all with full provenance tracking.
+**5. 24/7 Medical Guidance**
+PharmaGuide provides round-the-clock access to medication information and health guidance. Unlike traditional healthcare services with limited hours, patients can query the system anytime, anywhere — whether it's late at night when concerns arise, during weekends, or while traveling. This continuous availability ensures patients always have access to reliable medication information when they need it most, reducing anxiety and helping them make informed decisions about their health at any time.
+
+**6. Authentication and Security**
+The platform implements JWT-based authentication, secure password hashing with bcrypt, and role-based access control to protect patient data.
 
 
 ## Architecture
@@ -131,10 +135,10 @@ PharmaGuide is designed to be accessible from day one:
 
 | Stakeholder | Value Delivered |
 |---|---|
-| **Patients** | Personalized, understandable medication guidance grounded in real-world evidence |
-| **Healthcare Providers** | Clinical-grade decision support with full evidence provenance |
-| **Health Systems** | Reduced adverse events through proactive interaction monitoring |
-| **Researchers** | A unified, queryable representation of multi-source pharmaceutical evidence |
+| **Patients** | Personalized, understandable medication guidance grounded in evidence; 24/7 access to reliable health information; comprehensive health tracking that helps remember medications, conditions, and important details for doctor visits |
+| **Healthcare Providers** | Supplementary decision support with patient health context including allergies, past history, and current conditions; better-informed patients who can articulate their concerns |
+| **Health Systems** | Improved patient engagement and medication adherence; reduced non-urgent inquiries through self-service information access |
+| **Caregivers** | Easy-to-understand medication information to help care for family members; organized health records for multiple patients |
 
 PharmaGuide transforms fragmented, technical medical data into a living knowledge graph that reasons on behalf of patients — making safer, smarter medication management accessible to everyone.
 
