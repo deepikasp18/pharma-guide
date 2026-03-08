@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/api/patient.py
+# hypothesis_version: 6.151.9
+
+[0.35, 0.8, 404, 500, '/patient', '/profile', '/risks/{patient_id}', 'Current medications', 'Known allergies', 'Pharmacogenomic data', 'age_based_filtering', 'conditions', 'confidence', 'context_reevaluated', 'demographics', 'drug_interaction', 'factor', 'medications', 'medications_updated', 'moderate', 'patient', 'patient_id', 'severity', 'status', 'success']

@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/api/query.py
+# hypothesis_version: 6.151.9
+
+[0.8, 0.85, 0.9, 404, 500, '/explain/{query_id}', '/feedback', '/process', '/query', 'Additional context', 'Aggregated evidence', 'DrugBank', 'Feedback received', 'OnSIDES', 'SIDER', 'entity_extraction', 'medication_query', 'message', 'query', 'query_id', 'query_translation', 'result_relevance', 'status', 'success']

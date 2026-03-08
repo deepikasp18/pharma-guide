@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/api/middleware.py
+# hypothesis_version: 6.151.9
+
+[100, 'Rate limit exceeded', 'Request timeout', 'Validation error', 'X-Process-Time', 'error', 'message', 'path', 'retry_after', 'unknown']

@@ -1,0 +1,1 @@
+# PharmaGuide Health Companion Platform

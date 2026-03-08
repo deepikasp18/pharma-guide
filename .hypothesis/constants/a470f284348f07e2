@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/data_processing/etl_pipeline.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.6, 0.8, 1.0, 150, '1.0', 'CAUSES', 'FAERS', 'OnSIDES', 'SIDER', 'adverse_event', 'age', 'case_count', 'causes_relationship', 'confidence', 'ddinter', 'drug', 'drug_concept_name', 'drug_name', 'drugbank', 'drugs_fda', 'evidence_sources', 'faers', 'frequency', 'gender', 'high', 'meddra_code', 'medium', 'onsides', 'p_value', 'patient_count', 'patient_demographics', 'prr', 'side_effect', 'side_effect_name', 'sider', 'source_dataset', 'type', 'weight']

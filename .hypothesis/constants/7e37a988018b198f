@@ -1,0 +1,4 @@
+# file: /home/hari/pharma-guide/src/knowledge_graph/personalization_engine.py
+# hypothesis_version: 6.151.9
+
+[-30.0, -25.0, -20.0, 0.0, 0.01, 0.015, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.3, 1.5, 20.0, 30.0, 70.0, 'CYP2C19', 'CYP2C9', 'CYP2D6', 'CYP3A4', 'FAERS', 'OnSIDES', 'SIDER', 'Standard adult dose', 'adjust_frequency', 'adult', 'age', 'cirrhosis', 'diabetes', 'elderly', 'gastro', 'gender', 'heart_failure', 'hepatic', 'high', 'high body weight', 'hypertension', 'increase_dose', 'intermediate', 'intestinal', 'kidney', 'kidney_disease', 'liver', 'liver_disease', 'low', 'low body weight', 'moderate', 'monitor_levels', 'name', 'no_adjustment', 'normal_metabolizer', 'pediatric', 'pediatric patient', 'poor', 'poor_metabolizer', 'rapid', 'rapid_metabolizer', 'reduce_dose', 'renal', 'renal_failure', 'ultra', 'very_high', 'very_low', 'weight']
