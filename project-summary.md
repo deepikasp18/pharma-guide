@@ -81,9 +81,9 @@ End Users (Patients, Healthcare Providers, Administrators)
 | **Knowledge Graph** | Amazon Neptune (property graph) |
 | **Search** | OpenSearch for entity lookup and full-text search |
 | **NLP / ML** | spaCy, BioBERT, scikit-learn, Hugging Face Transformers |
-| **LLM Integration** | Anthropic Claude for response generation and decision support |
+| **LLM Integration** | LLM for response generation and decision support |
 | **Data Processing** | Pandas, NumPy |
-| **Frontend** | React Native (web + mobile) |
+| **Frontend** | React |
 | **Infrastructure** | Docker, Kubernetes, AWS (HIPAA-compliant) |
 
 ## Key Technical Innovations
